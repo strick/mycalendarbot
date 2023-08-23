@@ -1,5 +1,6 @@
 <% if (user) { %>
     <h4>Welcome, <%= user.displayName %></h4>
+    <button id="btnShowEvents" onclick="location.href='/events';">Show events</button>
 <% } else { %>
     <!-- Display the sign-in button or other content for non-logged in users -->
 <% } %>

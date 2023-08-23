@@ -1,0 +1,9 @@
+<button id="btnShowEvents" style="display: none;" onclick="displayEvents();">Show events</button>
+<div id="eventWrapper" style="display: none;">
+  <p>Your events retrieved from Microsoft Graph for the upcoming week:</p>
+  <ul id="events">
+    <% events.forEach(function(event) { %>
+        <li><%= event %></li>
+    <% }); %>
+  </ul>
+</div>
