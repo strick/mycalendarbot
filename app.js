@@ -191,7 +191,7 @@ console.log(`start/dateTime ge '${oneMonthAgoDateTime}'`);
             if (endpoint === `/users/${accountId}/events`) {
                 request = request
                     .select('attendees,organizer,subject,start,end')
-                    .filter(`start/dateTime ge '${oneMonthAgoDateTime}' and end/dateTime le '${currentDateTime}'`)
+                    .filter(`start/dateTime ge '${oneMonthAgoDateTime}' and end/dateTime le '${currentDateTime}' and sensitivity ne 'private'`)
                     .top(50)
                     .orderby('start/DateTime desc');
             }
