@@ -8,8 +8,14 @@ const session = require('express-session');
 const expressLayouts = require('express-ejs-layouts');
 
 
+
+
 const app = express();
 const PORT = process.env.PORT || 8080;
+
+const authMiddleware = require('./middleware/auth');
+app.use(authMiddleware.ensureAuthenticated);
+
 
 app.use(session({
     secret: process.env.SESSION_KEY,
@@ -204,7 +210,7 @@ console.log(`start/dateTime ge '${oneMonthAgoDateTime}'`);
         } while (endpoint);
 
 
-        res.render('events', { events: allEvents });
+        res.render('events', { events: allEvents, isLoggedIn: req.isLoggedIn });
     } catch (error) {
         console.error(error);
         //res.status(500).send("Error fetching events.");
@@ -214,7 +220,7 @@ console.log(`start/dateTime ge '${oneMonthAgoDateTime}'`);
 
 app.get("/", (req, res) => {
 
-    res.render('index');
+    res.render('index', {isLoggedIn: req.isLoggedIn});
 });
 
 app.get('/home', async (req, res) => {
@@ -237,14 +243,14 @@ app.get('/home', async (req, res) => {
         });
         try {
             const userDetails = await client.api('/me').select('id,displayName').get();
-            res.render('home', { user: userDetails }); // Render the page with user details
+            res.render('home', { user: userDetails, isLoggedIn: req.isLoggedIn }); // Render the page with user details
         } catch (error) {
             console.error(error);
             res.status(500).send(error);
         }
     } else {
         // Render your normal homepage or login page
-        res.render('home');
+        res.render('home', { isLoggedIn: req.isLoggedIn});
     }
 });
 
