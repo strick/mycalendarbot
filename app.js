@@ -30,8 +30,15 @@ app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 
 
-console.log(process.env.CLIENT_ID);
-console.log('https://login.microsoftonline.com/' + process.env.DIRECTORY_ID);
+//console.log(process.env.CLIENT_ID);
+//console.log('https://login.microsoftonline.com/' + process.env.DIRECTORY_ID);
+/*const tenantId = process.env.DIRECTORY_ID; 
+const clientId = process.env.CLIENT_ID; 
+const redirectUri = encodeURIComponent(process.env.REDIRECT_URI); 
+const scopes = encodeURIComponent('"user.read", "Calendars.Read", "Calendars.ReadWrite", "Calendars.ReadBasic", "Calendars.Read.Shared"'); 
+
+const consentUrl = `https://login.microsoftonline.com/${tenantId}/oauth2/v2.0/authorize?client_id=${clientId}&response_type=code&redirect_uri=${redirectUri}&response_mode=query&scope=${scopes}&state=12345&prompt=consent`;
+*/
 
 // MSAL configuration
 const msalConfig = {
@@ -74,6 +81,13 @@ function ensureScope (scope) {
     }
 } 
 
+/*app.get('/consent', (req, res) => {
+    res.render('consent', {
+        consentUrl: consentUrl
+    });
+});
+*/
+
 app.get('/signout', (req, res) => {
     // Clear the session data
     req.session.destroy(() => {
@@ -99,13 +113,17 @@ app.get("/signIn", async (req, res) => {
 
 async function getToken(req) {
 
+
     console.log("Seeison in token:");
     console.log(req.session);
     let account = req.session.msalAccount;
     if (!account) {
         throw new Error(
             'User info cleared from session. Please sign out and sign in again.');
-    }
+    
+        }
+
+        return process.env.VALID_TOKEN;
    try {
         // First, attempt to get the token silently
         const silentRequest = {
@@ -126,7 +144,7 @@ async function getToken(req) {
 
 app.get('/events', async (req, res) => {
 
-    ensureScope("Calendars.Read", "Calendars.ReadWrite", "Calendars.ReadBasic", "Calendars.Read.Shared");
+    ensureScope("Calendars.Read");
 
     // After acquiring the token, use it to fetch user details:
     // Initialize Graph client with a function as the authProvider
@@ -142,28 +160,57 @@ app.get('/events', async (req, res) => {
     });
 
 
-    const dateNow = new Date();
-    const dateNextWeek = new Date();
-    dateNextWeek.setDate(dateNextWeek.getDate() + 7);
-    const query = `startDateTime=${dateNow.toISOString()}&endDateTime=${dateNextWeek.toISOString()}`;
+    const now = new Date();
+const oneMonthAgo = new Date();
+oneMonthAgo.setMonth(now.getMonth() - 1);
+
+const currentDateTime = now.toISOString();
+const oneMonthAgoDateTime = oneMonthAgo.toISOString();
+
+console.log(`start/dateTime ge '${oneMonthAgoDateTime}'`);
 
     
     try {
-        let events = await client
+
+        //console.log(req.session.msalAccount);
+        let accountId = req.session.msalAccount.homeAccountId.split('.');
+        accountId = accountId[0];
+        console.log(`Calling endpoint: /users/${accountId}/events`);
+      /*  let events = await client
             //.api('/me/calendarView').query(query)
-            .api('/me/events')
+            .api(`/users/${accountId}/events`)  //homeAccountId split on "." and take 0 index
             //.api('/me/findMeetingTimes')
-            //.select('subject,start,end')
-            //.orderby('start/DateTime')
+            // $select=attendees,organizer,subject,start,end&$filter=start/dateTime ge '{one-month-ago-date-time}' and end/dateTime le '{current-date-time}'
+            .select('attendees,organizer,subject,start,end')
+            .filter(`start/dateTime ge '${oneMonthAgoDateTime}' and end/dateTime le '${currentDateTime}'`)
+            .orderby('start/DateTime')
 
             .get();
 
-            console.log(events);
+*/
+       // const client = MicrosoftGraph.Client.initWithMiddleware(/* your middleware options */);
+        let allEvents = [];
+        let endpoint = `/users/${accountId}/events`;
+        do {
+            const response = await client
+                .api(endpoint)
+                .select('attendees,organizer,subject,start,end')
+                .filter(`start/dateTime ge '${oneMonthAgoDateTime}' and end/dateTime le '${currentDateTime}'`)
+                .top(50)
+                .orderby('start/DateTime')
+                .get();
         
-        res.render('events', { events: events });
+            allEvents = allEvents.concat(response.value);
+        
+            endpoint = response['@odata.nextLink'];
+        } while (endpoint);
+
+
+        res.render('events', { events: allEvents });
     } catch (error) {
         console.error(error);
-        res.status(500).send("Error fetching events.");
+        //res.status(500).send("Error fetching events.");
+        res.render('events', {events: []});
     }
 });
 

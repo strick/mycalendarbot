@@ -1,9 +1,16 @@
-<button id="btnShowEvents" style="display: none;" onclick="displayEvents();">Show events</button>
-<div id="eventWrapper" style="display: none;">
+<div id="eventWrapper">
   <p>Your events retrieved from Microsoft Graph for the upcoming week:</p>
-  <ul id="events">
+  <% if(events.length != 0) { %>
+  <ul id="events">   
     <% events.forEach(function(event) { %>
-        <li><%= event %></li>
+        <li><%= event.subject %> (<%= event.start.dateTime %> - <%= event.end.dateTime %>)</li>
     <% }); %>
+    
   </ul>
+  <% } else { %>
+    <h2>No Events Found</h2>
+    <p>Please manually enter CSV file of events</p>
+    <textarea id="events"></textarea>
+    <input type="submit" value="Upload"/>
+<% } %>
 </div>
