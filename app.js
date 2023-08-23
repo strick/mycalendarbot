@@ -162,7 +162,7 @@ app.get('/events', async (req, res) => {
 
     const now = new Date();
 const oneMonthAgo = new Date();
-oneMonthAgo.setMonth(now.getMonth() - 1);
+oneMonthAgo.setMonth(now.getMonth() - 6);
 
 const currentDateTime = now.toISOString();
 const oneMonthAgoDateTime = oneMonthAgo.toISOString();
@@ -192,13 +192,19 @@ console.log(`start/dateTime ge '${oneMonthAgoDateTime}'`);
         let allEvents = [];
         let endpoint = `/users/${accountId}/events`;
         do {
-            const response = await client
-                .api(endpoint)
-                .select('attendees,organizer,subject,start,end')
-                .filter(`start/dateTime ge '${oneMonthAgoDateTime}' and end/dateTime le '${currentDateTime}'`)
-                .top(50)
-                .orderby('start/DateTime')
-                .get();
+
+            let request = client.api(endpoint);
+
+             // Only apply query parameters for the first request
+            if (endpoint === `/users/${accountId}/events`) {
+                request = request
+                    .select('attendees,organizer,subject,start,end')
+                    .filter(`start/dateTime ge '${oneMonthAgoDateTime}' and end/dateTime le '${currentDateTime}'`)
+                    .top(50)
+                    .orderby('start/DateTime');
+            }
+
+            const response = await request.get();
         
             allEvents = allEvents.concat(response.value);
         
