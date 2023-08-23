@@ -5,6 +5,8 @@ const MicrosoftGraph = require('@microsoft/microsoft-graph-client');
 require('dotenv').config();
 const session = require('express-session');
 
+const expressLayouts = require('express-ejs-layouts');
+
 
 const app = express();
 const PORT = process.env.PORT || 8080;
@@ -15,6 +17,9 @@ app.use(session({
     saveUninitialized: true,
   }));
 
+ app.use(expressLayouts);
+app.set('layout', 'layout'); // This sets the default layout to 'layout.ejs'. Adjust the path if it's located elsewhere.
+  
   
 const cors = require('cors');
 app.use(cors({
@@ -207,6 +212,11 @@ console.log(`start/dateTime ge '${oneMonthAgoDateTime}'`);
     }
 });
 
+app.get("/", (req, res) => {
+
+    res.render('index');
+});
+
 app.get('/home', async (req, res) => {
     if (req.query.code) {
         // ... (existing token exchange code)
@@ -227,14 +237,14 @@ app.get('/home', async (req, res) => {
         });
         try {
             const userDetails = await client.api('/me').select('id,displayName').get();
-            res.render('index', { user: userDetails }); // Render the page with user details
+            res.render('home', { user: userDetails }); // Render the page with user details
         } catch (error) {
             console.error(error);
             res.status(500).send(error);
         }
     } else {
         // Render your normal homepage or login page
-        res.render('index');
+        res.render('home');
     }
 });
 
