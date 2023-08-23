@@ -172,23 +172,10 @@ console.log(`start/dateTime ge '${oneMonthAgoDateTime}'`);
     
     try {
 
-        //console.log(req.session.msalAccount);
         let accountId = req.session.msalAccount.homeAccountId.split('.');
         accountId = accountId[0];
         console.log(`Calling endpoint: /users/${accountId}/events`);
-      /*  let events = await client
-            //.api('/me/calendarView').query(query)
-            .api(`/users/${accountId}/events`)  //homeAccountId split on "." and take 0 index
-            //.api('/me/findMeetingTimes')
-            // $select=attendees,organizer,subject,start,end&$filter=start/dateTime ge '{one-month-ago-date-time}' and end/dateTime le '{current-date-time}'
-            .select('attendees,organizer,subject,start,end')
-            .filter(`start/dateTime ge '${oneMonthAgoDateTime}' and end/dateTime le '${currentDateTime}'`)
-            .orderby('start/DateTime')
 
-            .get();
-
-*/
-       // const client = MicrosoftGraph.Client.initWithMiddleware(/* your middleware options */);
         let allEvents = [];
         let endpoint = `/users/${accountId}/events`;
         do {
@@ -201,7 +188,7 @@ console.log(`start/dateTime ge '${oneMonthAgoDateTime}'`);
                     .select('attendees,organizer,subject,start,end')
                     .filter(`start/dateTime ge '${oneMonthAgoDateTime}' and end/dateTime le '${currentDateTime}'`)
                     .top(50)
-                    .orderby('start/DateTime');
+                    .orderby('start/DateTime desc');
             }
 
             const response = await request.get();

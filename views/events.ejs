@@ -3,7 +3,12 @@
   <% if(events.length != 0) { %>
   <ul id="events">   
     <% events.forEach(function(event) { %>
-        <li><%= event.subject %> (<%= event.start.dateTime %> - <%= event.end.dateTime %>)</li>
+        <li><%= event.subject %>::<%= ((event.start.dateTime).split(".")[0]) %>::<%= ((event.end.dateTime).split(".")[0]) %>::<%=event.organizer.emailAddress.name%>::
+    
+            <% Object.values(event.attendees).forEach(function(attendee) { %>
+                <%= attendee.emailAddress.name %>,
+            <% });%>
+        </li>
     <% }); %>
     
   </ul>
