@@ -181,14 +181,11 @@ app.get('/events', async (req, res) => {
 
 
     const now = new Date();
-const oneMonthAgo = new Date();
-oneMonthAgo.setMonth(now.getMonth() - 6);
+    const oneMonthAgo = new Date();
+    oneMonthAgo.setMonth(now.getMonth() - 6);
 
-const currentDateTime = now.toISOString();
-const oneMonthAgoDateTime = oneMonthAgo.toISOString();
-
-console.log(`start/dateTime ge '${oneMonthAgoDateTime}'`);
-
+    const currentDateTime = now.toISOString();
+    const oneMonthAgoDateTime = oneMonthAgo.toISOString();
     
     try {
 
@@ -219,8 +216,17 @@ console.log(`start/dateTime ge '${oneMonthAgoDateTime}'`);
         } while (endpoint);
 
 
-        
-        res.render('events', { events: allEvents });
+        // Usage
+        const { getOpenAIResponse, formatEventsToString, trimToApproxTokens } = require('./openaiHandler');
+
+        // Example usage:
+        const formattedData = formatEventsToString(allEvents);
+        const trimmedText = trimToApproxTokens(formattedData, 5, 1200);
+        const response = await getOpenAIResponse(trimmedText);
+
+        console.log(response);
+ 
+        res.render('events', { events: allEvents, chatSummary: response.choices[0].message.content });
     } catch (error) {
         console.error(error);
         //res.status(500).send("Error fetching events.");
