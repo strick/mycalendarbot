@@ -1,29 +1,62 @@
 <div id="chat-area">
     <h2>Calendar Summary</h2>
-    <p>This wil be output from chatgpt</p>
+    <p>This will be the output from chatgpt</p>
 
     <h2>What else do you want to know?</h2>
-    <textarea id="question"></textarea>
+    <textarea id="question" style="height: 100px; width: 300px; overflow-y: auto; border: 1px solid #ccc; padding: 15px;"></textarea>
     <p id="chat-response"></p>
 </div>
+
 <div id="eventWrapper">
-  <p>Your events retrieved from Microsoft Graph for the upcoming week:</p>
-  <% if(events.length != 0) { %>
-  <ul id="events">   
-    <% events.forEach(function(event) { %>
-        <li><%= event.subject %>::<%= ((event.start.dateTime).split(".")[0]) %>::<%= ((event.end.dateTime).split(".")[0]) %>::<%=event.organizer.emailAddress.name%>::
+    <p>Your events retrieved from Microsoft Graph for the upcoming week:</p>
+    <% if(events.length != 0) { %>
+    <div class="scrollable-events" style="height: 600px; overflow-y: auto; border: 1px solid #ccc; padding: 15px;">
+    <!--    <ul id="events">
+            <% events.forEach(function(event) { %>
+                <li>
+                    <%= event.subject %>::<%= ((event.start.dateTime).split(".")[0]) %>::<%= ((event.end.dateTime).split(".")[0]) %>::<%=event.organizer.emailAddress.name%>::
+                    
+                    <% Object.values(event.attendees).forEach(function(attendee) { %>
+                        <% if(attendee.type === 'required') { %>
+                            <%= attendee.emailAddress.name %>,
+                        <% } %>
+                    <% });%>
+                </li>
+            <% }); %>
+        </ul>
+    -->
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Subject</th>
+                <th>Start Date</th>
+                <th>End Date</th>
+                <th>Organizer</th>
+                <th>Attendees</th>
+            </tr>
+        </thead>
+        <tbody>
+            <% events.forEach(function(event) { %>
+                <tr>
+                    <td><%= event.subject %></td>
+                    <td><%= ((event.start.dateTime).split(".")[0]) %></td>
+                    <td><%= ((event.end.dateTime).split(".")[0]) %></td>
+                    <td><%= event.organizer.emailAddress.name %></td>
+                    <td>
+                        <% Object.values(event.attendees).forEach(function(attendee, index, array) { %>
+                            <%= attendee.emailAddress.name %><%= index !== array.length - 1 ? ', ' : '' %>
+                        <% }); %>
+                    </td>
+                </tr>
+            <% }); %>
+        </tbody>
+    </table>
     
-            <% Object.values(event.attendees).forEach(function(attendee) { %>
-                <%= attendee.emailAddress.name %>,
-            <% });%>
-        </li>
-    <% }); %>
-    
-  </ul>
-  <% } else { %>
+    </div>
+    <% } else { %>
     <h2>No Events Found</h2>
     <p>Please manually enter CSV file of events</p>
     <textarea id="events"></textarea>
     <input type="submit" value="Upload"/>
-<% } %>
+    <% } %>
 </div>
