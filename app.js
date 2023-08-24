@@ -1,4 +1,5 @@
 const express = require('express');
+const bodyParser = require('body-parser');
 const path = require('path');
 const msal = require('@azure/msal-node');
 const MicrosoftGraph = require('@microsoft/microsoft-graph-client');
@@ -131,6 +132,7 @@ app.get("/signIn", async (req, res) => {
     res.redirect(authResponse);
 });
 
+/*
 async function getToken(req) {
 
 
@@ -161,6 +163,36 @@ async function getToken(req) {
         
     }
 }
+*/
+
+async function getToken(req) {
+    console.log("Session in token:", req.session);
+
+    let account = req.session.msalAccount;
+    if (!account) {
+        throw new Error('User info cleared from session. Please sign out and sign in again.');
+    }
+
+    try {
+        // First, attempt to get the token silently
+        const silentRequest = {
+            scopes: msalRequest.scopes,
+            account: account // cca.getAccountByUsername(account) if needed
+        };
+
+        const silentResult = await cca.acquireTokenSilent(silentRequest);
+        console.log("Silent token:", silentResult.accessToken);
+        return silentResult.accessToken;
+
+    } catch (silentError) {
+        console.error("Silent token acquisition fails. Trying to acquire a token using popup/login method.", silentError);
+
+        // You can resort to popup or redirect methods here, or simply throw an error
+        // For now, let's just return the token from environment
+        return process.env.VALID_TOKEN;
+    }
+}
+
 
 app.get('/events', async (req, res) => {
 
@@ -228,10 +260,41 @@ app.get('/events', async (req, res) => {
  
         res.render('events', { events: allEvents, chatSummary: response.choices[0].message.content });
     } catch (error) {
-        console.error(error);
-        //res.status(500).send("Error fetching events.");
+
+        if (error.body && typeof error.body.getReader === 'function') {
+            const reader = error.body.getReader();
+            reader.read().then(function (result) {
+                const text = new TextDecoder("utf-8").decode(result.value);
+                console.error("Graph API detailed error:", text);
+            });
+        } else {
+            console.error("Error:", error);
+        }
+
         res.render('events', {events: []});
     }
+});
+
+app.use(bodyParser.json());
+
+app.post('/chat', async (req, res) => {
+    const message = req.body.message;
+
+    // Process the message here as needed...
+    // For simplicity, let's just echo back the received message:
+    const responseMessage = `Received: ${message}`;
+
+    const { getOpenAIResponseConverstation} = require('./openaiHandler');
+
+    // Example usage:
+    //const formattedData = formatEventsToString(responseMessage);
+    //const trimmedText = trimToApproxTokens(formattedData, 5, 1200);
+    const response = await getOpenAIResponseConverstation(responseMessage);
+
+    console.log(response);
+
+    // Send back a response
+    res.json({ response: response.choices[0].message.content });
 });
 
 app.get("/", (req, res) => {

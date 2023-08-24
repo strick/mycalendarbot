@@ -7,10 +7,7 @@ const openai = new OpenAI({
 });
 
 const chatMessages = [
-    {
-        "role": "system",
-        "content": "You will be provided with a :: separated value of calendar events. The order of items is Subject, Start Date, End Date, Meeting Organizer and Attendees\n\nYour task is to summarize the calendar as follows:\n\n-Overall summary of events\n-Who do they meet with the most?\n-Who do they meet with the least?\n-How many types of events repeat\n-Predict the future meetings they will have\n\nYou should be able to answer additional questions about the calendar."
-    }
+   
 ];
 
 async function getOpenAIResponseConverstation(newMessage){
@@ -35,6 +32,14 @@ async function getOpenAIResponseConverstation(newMessage){
 }
 
 async function getOpenAIResponse(formattedString) {
+
+    chatMessages.length = 0;
+    chatMessages.push(
+        {
+            "role": "system",
+            "content": "You will be provided with a :: separated value of calendar events. The order of items is Subject, Start Date, End Date, Meeting Organizer and Attendees\n\nYour task is to summarize the calendar as follows:\n\nDescribe the type of events that occurred.  \nWho do they meet with the most?\nWho do they meet with the least?\nHow many types of events repeat\n-Predict the future meetings they will have\n\nYou should be able to answer additional questions about the calendar."
+        }
+    );
 
     chatMessages.push(
         {

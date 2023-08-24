@@ -42,5 +42,37 @@
 <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<script>
+    document.getElementById('question').addEventListener('keyup', function(event) {
+    if (event.key === "Enter") {
+        event.preventDefault(); // Prevent newline in textarea
+        sendPostRequest(this.value); // Send value to server
+        document.getElementById('question').value = "";
+    }
+});
+
+function sendPostRequest(value) {
+    fetch('/chat', { // Replace '/your-post-endpoint' with your server endpoint
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            message: value
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        // Update the chat-response element
+        // Current text
+        var currentText = document.getElementById('chat-response').innerHTML;
+        document.getElementById('chat-response').innerHTML = "You: " + value + "\nCal Buddy: " + data.response + "\n\n" + currentText + "\n\n";
+    })
+    .catch(error => {
+        console.error('Error:', error);
+    });
+}
+
+</script>
 </body>
 </html>
