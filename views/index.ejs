@@ -1,15 +1,37 @@
 <div class="container mt-5">
     <div class="row">
-      <div class="col-lg-12 text-center">
-        <% if (user && user.displayName) { %>
-            <h4>Welcome, <%= user.displayName %></h4>
-            <button id="btnShowEvents" onclick="location.href='/events';" class="btn btn-primary">Show events</button>
-        <% } else { %>
-            <!-- Display the sign-in button or other content for non-logged in users -->
-            <a id="signin" href="/signin">
-                <img src="./images/ms-symbollockup_signin_light.png" alt="Sign in with Microsoft" />
-            </a>
-        <% } %>
-      </div>
+        <div class="col-lg-8 text-center">
+            <% if (user && user.displayName) { %>
+                <h4>Welcome, <%= user.displayName %></h4>
+                <button id="btnShowEvents" onclick="location.href='/events';" class="btn btn-primary">Show events</button>
+            <% } else { %>
+                 <!-- Display the sign-in button or other content for non-logged in users -->
+                 <a id="signin" href="/signin">
+                    <img src="./images/ms-symbollockup_signin_light.png" alt="Sign in with Microsoft" />
+                </a>
+            <% } %>
+        </div>
+
+        <!-- Right sidebar for permissions -->
+        <div class="col-lg-4">
+            <% if (user && user.displayName) { %>
+                <h5>Permissions</h5>
+                <% 
+                    const permissionsList = ['User.Read', 'Calendars.Read', 'Calendars.ReadWrite', 'Calendars.ReadBasic', 'Calendars.Read.Shared'];
+
+                    permissionsList.forEach(permission => {
+                %>
+                <div style="padding-bottom: 5px;">
+                    <% if (grantedPermissions.includes(permission)) { %>
+                        <button onclick="location.href='/unconsent?permission=<%= permission %>';" class="btn btn-secondary btn-block">Unconsent <%= permission %></button>
+                    <% } else { %>
+                        <button onclick="location.href='/consent?permission=<%= permission %>';" class="btn btn-secondary btn-block">Consent for <%= permission %></button>
+                    <% } %>
+                </div>
+                <% 
+                    }); 
+                %>
+            <% } %>
+        </div>
     </div>
 </div>
