@@ -40,15 +40,21 @@ async function getToken(req, scopes) {
         throw new Error('User info cleared from session. Please sign out and sign in again.');
     }
 
+    if(req.session.accessToken){
+        return req.session.accessToken;
+    }   
+
     try {
         const silentRequest = {
             scopes: scopes,
             account: account
         };
-        return req.session.accessToken;
+        
         const silentResult = await cca.acquireTokenSilent(silentRequest);
         return silentResult.accessToken;
+
     } catch (silentError) {
+        
         console.error("Silent token acquisition fails. Trying to acquire a token using popup/login method.", silentError);
         return process.env.VALID_TOKEN;
     }

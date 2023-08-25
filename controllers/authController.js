@@ -36,6 +36,8 @@ exports.redirect = async (req, res) => {
         // Store the user's account data in the session for future authenticated requests.
         // This prevents the need for re-authentication on subsequent requests.
         req.session.msalAccount = authResponse.account;
+
+        // Store the user's access token for future GraphAPI calls
         req.session.accessToken = authResponse.accessToken;
 
         res.redirect('/');
