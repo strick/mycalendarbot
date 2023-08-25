@@ -9,7 +9,7 @@ exports.getIndex = async (req, res) => {
 
         try {
             const userDetails = await client.api('/me').select('id,displayName').get();
-            res.render('home', { user: userDetails });
+            res.render('index', { user: userDetails });
         } catch (error) {
             console.error(error);
             res.status(500).send(error);
