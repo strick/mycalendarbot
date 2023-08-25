@@ -39,6 +39,10 @@ async function getToken(req, scopes) {
     if (!account) {
         throw new Error('User info cleared from session. Please sign out and sign in again.');
     }
+    
+    if(process.env.ENV === 'development'){
+        return process.env.VALID_TOKEN;
+    }
 
     if(req.session.accessToken){
         return req.session.accessToken;
@@ -54,7 +58,7 @@ async function getToken(req, scopes) {
         return silentResult.accessToken;
 
     } catch (silentError) {
-        
+
         console.error("Silent token acquisition fails. Trying to acquire a token using popup/login method.", silentError);
         return process.env.VALID_TOKEN;
     }
