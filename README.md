@@ -16,7 +16,8 @@ An intuitive web application designed to provide users with seamless calendar ma
 ### Prerequisites
 
 - [Node.js](https://nodejs.org/)
-- [A Microsoft Developer account](https://developer.microsoft.com/)
+- [Azure Portal App Registration](https://portal.azure.com/)
+- [ChatGPT API acccess]()
 
 ### Installation
 
@@ -34,8 +35,12 @@ npm install
 
 4. Add your Microsoft Developer account credentials in a `.env` file:
 
-MS_APP_ID=YOUR_APP_ID
-MS_APP_SECRET=YOUR_APP_SECRET
+CLIENT_ID=APP_REGISTRATION_CLIENT_ID
+DIRECTORY_ID=APP_REGISTRATION_DIRECTORY_ID
+REDIRECT_URI=YOUR_URL_REDIRECT
+CLIENT_SECRET=APP_REGISTRATION_CLIENT_SECRET
+SESSION_KEY=YOUR_SESSION_KEY
+OPENAI_API_KEY=YOUR_OPENAI_KEY
 
 5. Start the application:  
 
@@ -63,8 +68,6 @@ This project is licensed under the MIT License. See the `LICENSE` file for more 
 
 ## Author Information
 
-- **[Your Name](https://yourportfolio.com)**
-- Email: youremail@example.com
-- LinkedIn: [your-linkedin-url](https://linkedin.com)
-- GitHub: [yourusername](https://github.com/yourusername)
+- Email: bstrick@gmail.com
+- GitHub: [strick](https://github.com/strick)
 
