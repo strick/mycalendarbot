@@ -18,7 +18,7 @@ exports.getEvents = async (req, res) => {
         try {
             const client = initGraphClient(req, process.env.VAILD_TOKEN);
             const allEvents = await fetchAllEvents(client, accountId, startDateTime, endDateTime);
-            const chatSummary = await fetchChatSummary(allEvents);
+            const chatSummary = await fetchChatSummary(allEvents, req.session.username);
 
             res.render('events', { events: allEvents, chatSummary });
         }

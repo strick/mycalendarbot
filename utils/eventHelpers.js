@@ -39,10 +39,10 @@ const fetchAllEvents = async (client, accountId, startDateTime, endDateTime) => 
     return allEvents;
 };
 
-const fetchChatSummary = async (allEvents) => {
+const fetchChatSummary = async (allEvents, username) => {
     const formattedData = formatEventsToString(allEvents);
     const trimmedText = trimToApproxTokens(formattedData, TRIM_START, TRIM_END);
-    const response = await getOpenAIResponse(trimmedText);
+    const response = await getOpenAIResponse(trimmedText, username);
     return response.choices[0].message.content;
 };
 
