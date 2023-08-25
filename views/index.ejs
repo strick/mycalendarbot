@@ -16,7 +16,7 @@
     <!-- Right sidebar for permissions -->
     <div class="col-lg-4 pl-4 pr-3" style="border-left: 1px solid #e0e0e0;">
         <% if (user && user.displayName) { %>
-            <h5>Permissions</h5>
+            <h5>Permissions Used</h5>
             <% 
                 const permissionsList = ['User.Read', 'Calendars.Read', 'Calendars.ReadWrite', 'Calendars.ReadBasic', 'Calendars.Read.Shared'];
 
@@ -24,7 +24,7 @@
             %>
             <div style="padding-bottom: 5px;">
                 <% if (grantedPermissions.includes(permission)) { %>
-                    <button onclick="location.href='/unconsent?permission=<%= permission %>';" class="btn btn-secondary btn-block">Unconsent <%= permission %></button>
+                    <p><%= permission %></p>
                 <% } else { %>
                     <button onclick="location.href='/consent?permission=<%= permission %>';" class="btn btn-secondary btn-block">Consent for <%= permission %></button>
                 <% } %>
