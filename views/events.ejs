@@ -1,65 +1,97 @@
-<div id="chat-area">
-    <h2>Calendar Summary</h2>
-    <p><%= chatSummary%></p>
+<div id="chat-area" class="mb-5">
+    <h2 class="mb-3">Calendar Summary</h2>
+    <div class="mb-3 p-3 bg-light rounded">
+        <p class="mb-0"><%= chatSummary %></p>
+    </div>
 
-    <h2>What else do you want to know?</h2>
-    <textarea id="question" style="height: 100px; width: 500px; overflow-y: auto; border: 1px solid #ccc; padding: 15px;"></textarea>
-    <br />
-    <h4>Chat History</h4>
-    <textarea id="chat-response" style="height: 100px; width: 500px; overflow-y: auto; border: 1px solid #ccc; padding: 15px;"></textarea>
+    <h3 class="mb-3">What else do you want to know?</h3>
+    <textarea id="question" class="form-control mb-3" style="height: 100px;"></textarea>
+
+    <div id="loading-indicator" style="display: none;">Loading...</div>
+
+    <h4 class="mb-3">Chat History</h4>
+    <textarea id="chat-response" disabled="disabled" class="form-control" style="height: 100px;"></textarea>
 </div>
 
 <div id="eventWrapper">
-    <h2>Your Calendar At A Glance</h2>
-    <p>Events from the past six months:</p>
+    <h2 class="mb-3">Your Calendar At A Glance</h2>
+    <p class="mb-4">Events from the past six months:</p>
+
     <% if(events.length != 0) { %>
-    <div class="scrollable-events" style="height: 600px; overflow-y: auto; border: 1px solid #ccc; padding: 15px;">
-    <!--    <ul id="events">
-            <% events.forEach(function(event) { %>
-                <li>
-                    <%= event.subject %>::<%= ((event.start.dateTime).split(".")[0]) %>::<%= ((event.end.dateTime).split(".")[0]) %>::<%=event.organizer.emailAddress.name%>::
-                    
-                    <% Object.values(event.attendees).forEach(function(attendee) { %>
-                        <% if(attendee.type === 'required') { %>
-                            <%= attendee.emailAddress.name %>,
-                        <% } %>
-                    <% });%>
-                </li>
-            <% }); %>
-        </ul>
-    -->
-    <table class="table table-striped">
-        <thead>
-            <tr>
-                <th>Subject</th>
-                <th>Start Date</th>
-                <th>End Date</th>
-                <th>Organizer</th>
-                <th>Attendees</th>
-            </tr>
-        </thead>
-        <tbody>
-            <% events.forEach(function(event) { %>
-                <tr>
-                    <td><%= event.subject %></td>
-                    <td><%= ((event.start.dateTime).split(".")[0]) %></td>
-                    <td><%= ((event.end.dateTime).split(".")[0]) %></td>
-                    <td><%= event.organizer.emailAddress.name %></td>
-                    <td>
-                        <% Object.values(event.attendees).forEach(function(attendee, index, array) { %>
-                            <%= attendee.emailAddress.name %><%= index !== array.length - 1 ? ', ' : '' %>
-                        <% }); %>
-                    </td>
-                </tr>
-            <% }); %>
-        </tbody>
-    </table>
-    
-    </div>
+        <div class="scrollable-events mb-3 bg-light rounded p-3" style="height: 600px; overflow-y: auto;">
+            <table class="table table-striped mb-0">
+                <thead>
+                    <tr>
+                        <th>Subject</th>
+                        <th>Start Date</th>
+                        <th>End Date</th>
+                        <th>Organizer</th>
+                        <th>Attendees</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% events.forEach(function(event) { %>
+                        <tr>
+                            <td><%= event.subject %></td>
+                            <td><%= ((event.start.dateTime).split(".")[0]) %></td>
+                            <td><%= ((event.end.dateTime).split(".")[0]) %></td>
+                            <td><%= event.organizer.emailAddress.name %></td>
+                            <td>
+                                <% Object.values(event.attendees).forEach(function(attendee, index, array) { %>
+                                    <%= attendee.emailAddress.name %><%= index !== array.length - 1 ? ', ' : '' %>
+                                <% }); %>
+                            </td>
+                        </tr>
+                    <% }); %>
+                </tbody>
+            </table>
+        </div>
     <% } else { %>
-    <h2>No Events Found</h2>
-    <p>Please manually enter CSV file of events</p>
-    <textarea id="events"></textarea>
-    <input type="submit" value="Upload"/>
+        <h3 class="mb-3">No Events Found</h3>
+        <p class="mb-3">Please manually enter CSV file of events</p>
+        <textarea id="events" class="form-control mb-3"></textarea>
+        <input type="submit" class="btn btn-primary" value="Upload" />
     <% } %>
 </div>
+
+<script>
+    document.getElementById('question').addEventListener('keyup', function(event) {
+    if (event.key === "Enter") {
+        event.preventDefault(); // Prevent newline in textarea
+
+        // Show loading indicator
+        document.getElementById('loading-indicator').style.display = 'block';
+
+        sendPostRequest(this.value); // Send value to server
+        document.getElementById('question').value = "";
+    }
+});
+
+function sendPostRequest(value) {
+    fetch('/chat', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            message: value
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        // Hide loading indicator
+        document.getElementById('loading-indicator').style.display = 'none';
+
+        // Update the chat-response element
+        var currentText = document.getElementById('chat-response').innerHTML;
+        document.getElementById('chat-response').innerHTML = "You: " + value + "\nCal Buddy: " + data.response + "\n\n" + currentText + "\n\n";
+    })
+    .catch(error => {
+        // Hide loading indicator even on error, to not leave the user hanging
+        document.getElementById('loading-indicator').style.display = 'none';
+        console.error('Error:', error);
+    });
+}
+
+
+</script>
