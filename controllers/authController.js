@@ -36,9 +36,11 @@ exports.redirect = async (req, res) => {
         // Store the user's account data in the session for future authenticated requests.
         // This prevents the need for re-authentication on subsequent requests.
         req.session.msalAccount = authResponse.account;
+        req.session.accessToken = authResponse.accessToken;
         
         // Redirecting to the home route, carrying the acquired token, which might be used for immediate API calls or authentication verifications.
-        res.redirect(`/home/?code=${authResponse.accessToken}`);
+        //res.redirect(`/home/?code=${authResponse.accessToken}`);
+        res.redirect('/home');
     } catch (error) {
         // If token acquisition fails, it's important to catch this to prevent potential security issues or broken flows.
         console.error(error);

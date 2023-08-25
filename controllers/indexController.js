@@ -2,12 +2,9 @@
 
 const { initGraphClient } = require('../utils/graphClientHelper');
 
-exports.getIndex = (req, res) => {
-    res.render('index');
-};
+exports.getIndex = async (req, res) => {
 
-exports.getHome = async (req, res) => {
-    if (req.query.code) {
+    if (req.session.accessToken) {
         const client = initGraphClient(req);
 
         try {
@@ -18,6 +15,6 @@ exports.getHome = async (req, res) => {
             res.status(500).send(error);
         }
     } else {
-        res.render('home');
+        res.render('index', {user: {}});
     }
 };

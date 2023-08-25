@@ -45,6 +45,7 @@ async function getToken(req, scopes) {
             scopes: scopes,
             account: account
         };
+        return req.session.accessToken;
         const silentResult = await cca.acquireTokenSilent(silentRequest);
         return silentResult.accessToken;
     } catch (silentError) {

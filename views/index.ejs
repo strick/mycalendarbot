@@ -1,9 +1,15 @@
 <div class="container mt-5">
     <div class="row">
-        <div class="col-lg-12 text-center">
+      <div class="col-lg-12 text-center">
+        <% if (user && user.displayName) { %>
+            <h4>Welcome, <%= user.displayName %></h4>
+            <button id="btnShowEvents" onclick="location.href='/events';" class="btn btn-primary">Show events</button>
+        <% } else { %>
+            <!-- Display the sign-in button or other content for non-logged in users -->
             <a id="signin" href="/signin">
                 <img src="./images/ms-symbollockup_signin_light.png" alt="Sign in with Microsoft" />
-              </a>
-        </div>
+            </a>
+        <% } %>
+      </div>
     </div>
 </div>
