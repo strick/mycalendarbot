@@ -3,13 +3,11 @@
     <div class="col-lg-8">
         <% if (user && user.displayName) { %>
             <h4>Welcome, <%= user.displayName %></h4>
+            <p>Click here to see what's going on in your calendar.</p>
             <button id="btnShowEvents" onclick="location.href='/events';" class="btn btn-primary mb-3">Show events</button>
         <% } else { %>
             <h4>Welcome to My Calendar Buddy!</h4>
             <p>Sign in to access personalized features and manage your permissions.</p>
-            <a id="signin" href="/signin">
-                <img src="./images/ms-symbollockup_signin_light.png" alt="Sign in with Microsoft" class="mb-3"/>
-            </a>
         <% } %>
     </div>
 
@@ -32,6 +30,10 @@
             <% 
                 }); 
             %>
+        <% } else { %>
+            <a id="signin" href="/signin">
+                <img src="./images/ms-symbollockup_signin_light.png" alt="Sign in with Microsoft" class="mb-3"/>
+            </a>
         <% } %>
     </div>
 </div>
