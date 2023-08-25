@@ -3,14 +3,19 @@
 const MicrosoftGraph = require('@microsoft/microsoft-graph-client');
 const { getToken } = require('./msalHelper');
 
-function initGraphClient(req) {
+function initGraphClient(req, token) {
     return MicrosoftGraph.Client.init({
         authProvider: async (done) => {
-            try {
-                const token = await getToken(req, req.scopes);
-                done(null, token);  // Pass the token to the SDK
-            } catch (error) {
-                done(error, null); // Pass the error if there's one
+            if(token){
+                done(null, token);
+            }
+            else {
+                try {
+                    const token = await getToken(req, req.scopes);
+                    done(null, token);  // Pass the token to the SDK
+                } catch (error) {
+                    done(error, null); // Pass the error if there's one
+                }
             }
         }
     });
