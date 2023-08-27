@@ -10,7 +10,29 @@ const chatMessages = [
    
 ];
 
-async function getOpenAIResponseConverstation(newMessage){
+async function getOpenAIResponseConverstation(newMessage, username){
+
+    //chatMessages.pop();
+    // Add to the sytem prompt so it retains knowledge of the convo
+    let sysPrompt = chatMessages[0].content;
+
+    console.log("Sys prompt is: ");
+    console.log(sysPrompt);
+    // If this hasn't happened yet
+    if(chatMessages.length == 2){
+        sysPrompt += "\n\nBelow is the current conversation you are having with " + username + ":\n\n";
+    }
+
+    // Remove the old messages from the previous convo
+    let convo = chatMessages.pop();
+    console.log("GOT:" );
+    console.log(convo.content);
+
+    sysPrompt += convo.content
+
+    chatMessages[0].content = sysPrompt;
+
+    // Do a new meessage
     chatMessages.push(
         {
             "role": "user",
@@ -18,9 +40,13 @@ async function getOpenAIResponseConverstation(newMessage){
         }
     );
 
+    console.log("Chat message: ");
+    console.log(JSON.stringify(chatMessages));
+
+
     console.log("MESSAGE COUNT: " + chatMessages.length);
 
-    return await openai.chat.completions.create({
+    let responseMessage = await openai.chat.completions.create({
         model: "gpt-3.5-turbo-16k",
         messages: chatMessages,
         temperature: 1,
@@ -29,6 +55,11 @@ async function getOpenAIResponseConverstation(newMessage){
         frequency_penalty: 0,
         presence_penalty: 0,
     });
+
+    // Add to convo
+    chatMessages[1].content += "Sent: " + responseMessage.choices[0].message.content;
+
+    return responseMessage;
 }
 
 async function getOpenAIResponse(formattedString, username) {
@@ -37,7 +68,7 @@ async function getOpenAIResponse(formattedString, username) {
     chatMessages.push(
         {
             "role": "system",
-            "content": "You will be provided with a :: separated value of calendar events. The order of items is Subject, Start Date, End Date, Meeting Organizer and Attendees\n\nYour task is to summarize the calendar as follows:\n\nDescribe the type of events that occurred.  \nWho do they meet with the most?\nWho do they meet with the least?\nHow many types of events repeat\n-Predict the future meetings they will have\n\nYou should be able to answer additional questions about the calendar.  I am " + username
+            "content": "You will be provided with a :: separated value of calendar events. The order of items is Subject, Start Date, End Date, Meeting Organizer and Attendees\n\nYour task is to summarize the calendar by telling me who I meet with the most, who I meet with the least.  I would also like to know what types of reoccurring events I have.  Tell me what are my  longest events.  Tell me who I meet the longest with.   Please respond in a narative fashion, not a list.  I am " + username
         }
     );
 

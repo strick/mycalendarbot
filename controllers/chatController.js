@@ -5,7 +5,7 @@ const { getOpenAIResponseConverstation } = require('../utils/openaiHandler'); //
 exports.postMessage = async (req, res) => {
     const message = req.body.message;
     const responseMessage = `Received: ${message}`;
-    const response = await getOpenAIResponseConverstation(responseMessage);
+    const response = await getOpenAIResponseConverstation(responseMessage, req.session.username);
 
     res.json({ response: response.choices[0].message.content });
 };

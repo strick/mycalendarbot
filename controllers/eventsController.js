@@ -18,7 +18,7 @@ exports.getEvents = async (req, res) => {
         const allEvents = await fetchAllEvents(client, accountId, startDateTime, endDateTime);
 
         // Create a summary of the fetched events for chat display
-        const chatSummary = await fetchChatSummary(allEvents);
+        const chatSummary = await fetchChatSummary(allEvents, req.session.username);
 
         // Render the events page with the fetched events and chat summary
         res.render('events', { events: allEvents, chatSummary });
