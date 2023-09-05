@@ -5,7 +5,6 @@ const handleGraphError = require('../utils/graphErrorHandler'); // For handling 
 const { stripHtml, transformTeamsMeetingText } = require('../utils/textTransforms');
 const keyword_extractor = require("keyword-extractor");
 
-
 exports.getEvents = async (req, res) => {
     // Initialize a new graph client connection using the request's session information
     const client = initGraphClient(req);

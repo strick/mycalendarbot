@@ -80,6 +80,8 @@ async function getOpenAIResponse(formattedString, username) {
         }
     );
 
+    console.log(chatMessages);
+
     return await openai.chat.completions.create({
         model: "gpt-3.5-turbo-16k",
         messages: chatMessages,
@@ -91,9 +93,55 @@ async function getOpenAIResponse(formattedString, username) {
     });
 }
 
+
+// This function will generate a random 4-character token.
+function generateToken() {
+    return Math.random().toString(36).substr(2, 4).toUpperCase();
+}
+
+// This dictionary will store our token to name mapping.
+let tokenDict = {};
+
 function formatEventsToString(events) {
+    
     // Check if events array is not empty
     if (events && events.length > 0) {
+
+        /*
+        events.forEach(function(event){
+        // For each attendee, event.attendees[].emailAddress.name, i want to replace the emailAddress.name with a unique 4 character token.  This token shoudl map back to the original name value
+            // Replace attendee names with 4-character tokens
+            if(event.attendees && Array.isArray(event.attendees)) {
+                event.attendees.forEach(attendee => {
+                    if (attendee.emailAddress && attendee.emailAddress.name) {
+                        let name = attendee.emailAddress.name;
+
+                        // Check if we already have a token for this name.
+                        let token = Object.keys(tokenDict).find(key => tokenDict[key] === name);
+
+                        // If not, generate a new one.
+                        if (!token) {
+                            token = generateToken();
+
+                            // Ensure token uniqueness
+                            while (tokenDict[token]) {
+                                token = generateToken();
+                            }
+
+                            tokenDict[token] = name;
+                        }
+
+                        // Replace the name with the token in cleanedText
+                        //cleanedText = cleanedText.replace(new RegExp(name, 'g'), token);
+                        attendee.emailAddress.name = token;
+                    }
+                });
+            }
+        });*/
+
+
+// This doesn't work becuase this gets trimmed afterward....
+
         // Transform the events array into a formatted string
         return events.map(event => {
             const subject = event.subject;
