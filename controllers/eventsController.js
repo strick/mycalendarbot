@@ -3,6 +3,8 @@ const { initGraphClient } = require('../utils/graphClientHelper'); // To initial
 const { getDateTimeRange, getAccountId, fetchAllEvents, fetchChatSummary } = require('../utils/eventHelpers'); // To simplify event fetching and manipulation
 const handleGraphError = require('../utils/graphErrorHandler'); // For handling errors from Microsoft Graph in a standardized way
 const { stripHtml, transformTeamsMeetingText } = require('../utils/textTransforms');
+const keyword_extractor = require("keyword-extractor");
+
 
 exports.getEvents = async (req, res) => {
     // Initialize a new graph client connection using the request's session information
@@ -20,8 +22,29 @@ exports.getEvents = async (req, res) => {
 
         // Remove the html from the events
         allEvents.forEach(function(event) { 
-            event.body.content = transformTeamsMeetingText(stripHtml(event.body.content));
-//            console.log(event.reocurrence);
+
+            if(event.subject == 'Focus time'){
+                event.body.content = "";
+            }
+
+            // Transform attendee names into 4 character codes
+
+            let cleanedText = transformTeamsMeetingText(stripHtml(event.body.content));
+
+            // Extract keywords
+            const extraction_result =
+            keyword_extractor.extract(cleanedText,{
+                language:"english",
+                remove_digits: true,
+                return_changed_case:true,
+                remove_duplicates: false
+
+            });
+
+            //event.body.content = cleanedText;
+            event.body.content = extraction_result;
+            //event.body.ranked = extraction_result;
+
         });
 
         // Create a summary of the fetched events for chat display
