@@ -2,6 +2,7 @@
 const { initGraphClient } = require('../utils/graphClientHelper'); // To initialize a client connection to Microsoft Graph
 const { getDateTimeRange, getAccountId, fetchAllEvents, fetchChatSummary } = require('../utils/eventHelpers'); // To simplify event fetching and manipulation
 const handleGraphError = require('../utils/graphErrorHandler'); // For handling errors from Microsoft Graph in a standardized way
+const { stripHtml, transformTeamsMeetingText } = require('../utils/textTransforms');
 
 exports.getEvents = async (req, res) => {
     // Initialize a new graph client connection using the request's session information
@@ -16,6 +17,11 @@ exports.getEvents = async (req, res) => {
     try {
         // Fetch all events for the specified account and date range
         const allEvents = await fetchAllEvents(client, accountId, startDateTime, endDateTime);
+
+        // Remove the html from the events
+        allEvents.forEach(function(event) { 
+            event.body.content = transformTeamsMeetingText(stripHtml(event.body.content));
+        });
 
         // Create a summary of the fetched events for chat display
         const chatSummary = await fetchChatSummary(allEvents, req.session.username);

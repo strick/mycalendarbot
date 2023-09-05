@@ -27,6 +27,7 @@
                         <th>End Date</th>
                         <th>Organizer</th>
                         <th>Attendees</th>
+                        <th>Body</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -41,6 +42,7 @@
                                     <%= attendee.emailAddress.name %><%= index !== array.length - 1 ? ', ' : '' %>
                                 <% }); %>
                             </td>
+                            <td><%= event.body.content %></td>
                         </tr>
                     <% }); %>
                 </tbody>

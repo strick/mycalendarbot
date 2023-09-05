@@ -25,7 +25,7 @@ const fetchAllEvents = async (client, accountId, startDateTime, endDateTime) => 
         const request = client.api(endpoint);
 
         if (endpoint === `/users/${accountId}/events`) {
-            request.select('attendees,organizer,subject,start,end')
+            request.select('attendees,organizer,subject,start,end,body')
                    .filter(`start/dateTime ge '${startDateTime}' and end/dateTime le '${endDateTime}' and sensitivity ne 'private'`)
                    .top(50)
                    .orderby('start/DateTime desc');

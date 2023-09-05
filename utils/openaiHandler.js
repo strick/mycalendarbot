@@ -1,6 +1,7 @@
 // openaiHandler.js
 
 const OpenAI = require("openai");
+const { stripHtml, transformTeamsMeetingText } = require('./textTransforms');
 
 const openai = new OpenAI({
     apiKey: process.env.OPENAI_API_KEY
@@ -103,9 +104,10 @@ function formatEventsToString(events) {
                 .filter(attendee => attendee.type === 'required')
                 .map(attendee => attendee.emailAddress.name)
                 .join(',');
+            const body = transformTeamsMeetingText(stripHtml(event.body.content));
 
             // Combine all elements with '::' delimiter
-            return `${subject}::${startDate}::${endDate}::${organizer}::${attendees}`;
+            return `${subject}::${startDate}::${endDate}::${organizer}::${attendees}::${body}`;
         }).join('\n');  // Join all rows with a newline
     }
 
