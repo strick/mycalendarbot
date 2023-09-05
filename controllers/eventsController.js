@@ -21,6 +21,7 @@ exports.getEvents = async (req, res) => {
         // Remove the html from the events
         allEvents.forEach(function(event) { 
             event.body.content = transformTeamsMeetingText(stripHtml(event.body.content));
+//            console.log(event.reocurrence);
         });
 
         // Create a summary of the fetched events for chat display
