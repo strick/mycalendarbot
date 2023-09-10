@@ -1,8 +1,10 @@
-<h1>Events for This Week</h1>
+<h1>Your Next Seven Days</h1>
 <div id="eventWrapper">
-    <h2 class="mb-3">Your Calendar At A Glance</h2>
-    <p class="mb-4">Events from the past six months:</p>
-
+    <p class="mb-4">Use this form to describe what you need to get done over the next seven days and I'll create a schedule for you that you can import into your existing Outlook</p>
+<textarea id="tasksInput" placeholder="Type what you need to do this week" class="form-control mb-3" style="height: 100px;"></textarea>
+<button id="generateSchedule">Generate Schedule</button>
+<button id="downloadICS" style="display: none;">Download .ics</button>
+    
     <% if(events.length != 0) { %>
         <div class="scrollable-events mb-3 bg-light rounded p-3" style="height: 600px; overflow-y: auto;">
             <table class="table table-striped mb-0">
@@ -35,7 +37,4 @@
     <% } %>
 </div>
 
-<h2>Plan Your Week</h2>
-<textarea id="tasksInput" placeholder="Type what you need to do this week"></textarea>
-<button id="generateSchedule">Generate Schedule</button>
-<button id="downloadICS" style="display: none;">Download .ics</button>
+
