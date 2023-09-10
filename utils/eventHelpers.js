@@ -6,6 +6,19 @@ const SIX_MONTHS = 6;
 const TRIM_START = 5;
 const TRIM_END = 1200;
 
+const getNextSevenDaysRange = () => {
+    const start = new Date();
+    const end = new Date();
+
+    start.setHours(0, 0, 0, 0); // Start of today
+    end.setDate(start.getDate() + 7);
+    end.setHours(23, 59, 59, 999); // End of the 7th day
+
+    return { startDateTime: start.toISOString(), endDateTime: end.toISOString() };
+}
+
+
+
 const getDateTimeRange = () => {
     const now = new Date();
     const oneMonthAgo = new Date();
@@ -19,17 +32,19 @@ const getAccountId = (req) => {
 
 const fetchAllEvents = async (client, accountId, startDateTime, endDateTime) => {
     let allEvents = [];
-    let endpoint = `/users/${accountId}/events`;
+    let endpoint = `/users/${accountId}/calendarView?startDateTime=${startDateTime}&endDateTime=${endDateTime}`;
 
     do {
         const request = client.api(endpoint);
 
-        if (endpoint === `/users/${accountId}/events`) {
+        if (endpoint.startsWith(`/users/${accountId}/calendarView`)) {
             request.select('attendees,organizer,subject,start,end,body,recurrence')
-                   .filter(`start/dateTime ge '${startDateTime}' and end/dateTime le '${endDateTime}' and sensitivity ne 'private'`)
+                   .filter(`sensitivity ne 'private'`)
                    .top(50)
                    .orderby('start/DateTime desc');
         }
+
+        console.log(`Fetching events between '${startDateTime}' and '${endDateTime}' excluding private events`);
 
         const response = await request.get();
         allEvents = allEvents.concat(response.value);
@@ -38,6 +53,7 @@ const fetchAllEvents = async (client, accountId, startDateTime, endDateTime) => 
 
     return allEvents;
 };
+
 
 const fetchChatSummary = async (allEvents, username) => {
     const formattedData = formatEventsToString(allEvents);
@@ -50,5 +66,6 @@ module.exports = {
     getDateTimeRange,
     getAccountId,
     fetchAllEvents,
-    fetchChatSummary
+    fetchChatSummary,
+    getNextSevenDaysRange
 };
