@@ -29,6 +29,7 @@
     "jsdom": "^22.1.0",
     "jsonwebtoken": "^9.0.1",
     "keyword-extractor": "^0.0.25",
+    "moment-timezone": "^0.5.43",
     "nodemon": "^3.0.1",
     "openai": "^4.2.0",
     "path": "^0.12.7"

@@ -43,18 +43,19 @@ const getAccountId = (req) => {
     return req.session.msalAccount.homeAccountId.split('.')[0];
 };
 
+const moment = require('moment-timezone');
+
 const fetchAllEvents = async (client, accountId, startDateTime, endDateTime, selection) => {
     let allEvents = [];
     let endpoint = `/users/${accountId}/calendarView?startDateTime=${startDateTime}&endDateTime=${endDateTime}`;
 
     const defaultSelection = 'attendees,organizer,subject,start,end,body,recurrence';
 
-
     do {
         const request = client.api(endpoint);
 
         if (endpoint.startsWith(`/users/${accountId}/calendarView`)) {
-            request.select(selection ? selection : defaultSelection)  // Use the provided selection or the default
+            request.select(selection ? selection : defaultSelection)
                    .filter(`sensitivity ne 'private'`)
                    .top(50)
                    .orderby('start/DateTime desc');
@@ -63,12 +64,20 @@ const fetchAllEvents = async (client, accountId, startDateTime, endDateTime, sel
         console.log(`Fetching events between '${startDateTime}' and '${endDateTime}' excluding private events`);
 
         const response = await request.get();
+        
+        // Convert dates to EST
+        for (let event of response.value) {
+            event.start.dateTime = moment.tz(event.start.dateTime, "UTC").tz("America/New_York").format();
+            event.end.dateTime = moment.tz(event.end.dateTime, "UTC").tz("America/New_York").format();
+        }
+
         allEvents = allEvents.concat(response.value);
         endpoint = response['@odata.nextLink'];
     } while (endpoint);
 
     return allEvents;
 };
+
 
 
 const fetchChatSummary = async (allEvents, username) => {
