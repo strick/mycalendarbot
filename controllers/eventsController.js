@@ -1,9 +1,46 @@
 // Import necessary utilities and helper functions
 const { initGraphClient } = require('../utils/graphClientHelper'); // To initialize a client connection to Microsoft Graph
-const { getDateTimeRange, getAccountId, fetchAllEvents, fetchChatSummary, getNextSevenDaysRange } = require('../utils/eventHelpers'); // To simplify event fetching and manipulation
+const { getDateTimeRange, getAccountId, fetchAllEvents, fetchChatSummary, getNextSevenDaysRange, generateWeeklySchedule } = require('../utils/eventHelpers'); // To simplify event fetching and manipulation
 const handleGraphError = require('../utils/graphErrorHandler'); // For handling errors from Microsoft Graph in a standardized way
 const { stripHtml, transformTeamsMeetingText } = require('../utils/textTransforms');
 const keyword_extractor = require("keyword-extractor");
+const { all } = require('../routes/events');
+
+exports.generateSchedule = async (req, res) => {
+
+     // Initialize a new graph client connection using the request's session information
+     const client = initGraphClient(req);
+
+     const { startDateTime, endDateTime } = getNextSevenDaysRange();
+ 
+     // Fetch the account ID associated with the current request/session
+     const accountId = getAccountId(req);
+
+     const tasks = req.body.tasks;
+ 
+     try {
+         // Fetch all events for the specified account and date range
+        const allEvents = await fetchAllEvents(client, accountId, startDateTime, endDateTime, 'organizer,subject,start,end');
+        const mergedEvents = await generateWeeklySchedule(tasks, allEvents);
+        console.log(mergedEvents.choices[0].message.content);
+
+        // Send a success response
+        res.status(200).json({
+            success: true,
+            data: mergedEvents
+        });
+
+     } catch (error) {
+         // Handle any Microsoft Graph specific errors
+         handleGraphError(error);
+         
+         // Send an error response
+        res.status(500).json({
+            success: false,
+            error: 'An error occurred while generating the schedule.'
+        });
+     }
+}
 
 exports.getCurrentWeekEvents = async (req, res) => {
 

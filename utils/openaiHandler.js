@@ -63,6 +63,32 @@ async function getOpenAIResponseConverstation(newMessage, username){
     return responseMessage;
 }
 
+async function getScheduleFromOpenAI(tasks, currentSchedule) {
+
+    console.log("Tasks: ");
+    console.log(tasks);
+    console.log(currentSchedule);
+    const message = [{
+        "role": "system",
+        "content": "You will be provided with a freeform text that describes tasks that a person needs to get done during the week.   You will also be provided with their current schedule.  Your task will be to provide an updated schedule by merging all the exising events with the new events that you generate based on the users tasks that they need to get done.  Do not change the times for existing events."
+    },
+    {
+        "role": "user",
+        "content": "Tasks:\n" + tasks + "\n\nCurrent Schedule:\n" + JSON.stringify(currentSchedule)
+    }];
+
+    
+    return await openai.chat.completions.create({
+        model: "gpt-3.5-turbo-16k",
+        messages: message,
+        temperature: 1,
+        max_tokens: 256,
+        top_p: 1,
+        frequency_penalty: 0,
+        presence_penalty: 0,
+    });
+}
+
 async function getOpenAIResponse(formattedString, username) {
 
     chatMessages.length = 0;
@@ -80,7 +106,7 @@ async function getOpenAIResponse(formattedString, username) {
         }
     );
 
-    console.log(chatMessages);
+  // console.log(chatMessages);
 
     return await openai.chat.completions.create({
         model: "gpt-3.5-turbo-16k",
@@ -178,4 +204,4 @@ function trimToApproxTokens(inputStr, charPerToken = 5, tokenLimit = 12000) {
     return trimmedStr;
 }
 
-module.exports = { getOpenAIResponse, formatEventsToString, trimToApproxTokens, getOpenAIResponseConverstation };
+module.exports = { getOpenAIResponse, formatEventsToString, trimToApproxTokens, getOpenAIResponseConverstation, getScheduleFromOpenAI };

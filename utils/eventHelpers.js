@@ -1,6 +1,6 @@
 // /utils/eventHelpers.js
 
-const { getOpenAIResponse, formatEventsToString, trimToApproxTokens } = require('./openaiHandler');
+const { getOpenAIResponse, formatEventsToString, trimToApproxTokens, getScheduleFromOpenAI } = require('./openaiHandler');
 
 const SIX_MONTHS = 6;
 const TRIM_START = 5;
@@ -16,7 +16,20 @@ const getNextSevenDaysRange = () => {
 
     return { startDateTime: start.toISOString(), endDateTime: end.toISOString() };
 }
+ 
+const generateWeeklySchedule = (tasks, currentSchedule) => {
 
+    const removeUnwantedKeys = (eventObj) => {
+        delete eventObj['@odata.etag'];
+        delete eventObj.id;
+        delete eventObj.organizer;
+        return eventObj;
+    }
+
+    const cleanedSchedule = currentSchedule.map(removeUnwantedKeys);
+
+    return getScheduleFromOpenAI(tasks, cleanedSchedule);
+}
 
 
 const getDateTimeRange = () => {
@@ -30,15 +43,18 @@ const getAccountId = (req) => {
     return req.session.msalAccount.homeAccountId.split('.')[0];
 };
 
-const fetchAllEvents = async (client, accountId, startDateTime, endDateTime) => {
+const fetchAllEvents = async (client, accountId, startDateTime, endDateTime, selection) => {
     let allEvents = [];
     let endpoint = `/users/${accountId}/calendarView?startDateTime=${startDateTime}&endDateTime=${endDateTime}`;
+
+    const defaultSelection = 'attendees,organizer,subject,start,end,body,recurrence';
+
 
     do {
         const request = client.api(endpoint);
 
         if (endpoint.startsWith(`/users/${accountId}/calendarView`)) {
-            request.select('attendees,organizer,subject,start,end,body,recurrence')
+            request.select(selection ? selection : defaultSelection)  // Use the provided selection or the default
                    .filter(`sensitivity ne 'private'`)
                    .top(50)
                    .orderby('start/DateTime desc');
@@ -67,5 +83,6 @@ module.exports = {
     getAccountId,
     fetchAllEvents,
     fetchChatSummary,
-    getNextSevenDaysRange
+    getNextSevenDaysRange,
+    generateWeeklySchedule
 };

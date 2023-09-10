@@ -3,6 +3,7 @@
     <p class="mb-4">Use this form to describe what you need to get done over the next seven days and I'll create a schedule for you that you can import into your existing Outlook</p>
 <textarea id="tasksInput" placeholder="Type what you need to do this week" class="form-control mb-3" style="height: 100px;"></textarea>
 <button id="generateSchedule">Generate Schedule</button>
+<div id="scheduleDisplay"></div>
 <button id="downloadICS" style="display: none;">Download .ics</button>
     
     <% if(events.length != 0) { %>
