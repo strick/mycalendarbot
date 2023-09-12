@@ -21,9 +21,19 @@ exports.generateSchedule = async (req, res) => {
      try {
          // Fetch all events for the specified account and date range
         const allEvents = await fetchAllEvents(client, accountId, startDateTime, endDateTime, 'organizer,subject,start,end');
-        const mergedEvents = await generateWeeklySchedule(tasks, allEvents);
-        console.log(mergedEvents.choices[0].message.content);
 
+
+        function transformToArray(events) {
+            return events.map(event => [
+                //event.subject,
+                event.start.dateTime + " - " + event.end.dateTime
+            ]);
+        }
+        
+        const result = transformToArray(allEvents);
+
+        const mergedEvents = await generateWeeklySchedule(tasks, result);
+        
         // Send a success response
         res.status(200).json({
             success: true,

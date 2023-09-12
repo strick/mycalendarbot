@@ -65,28 +65,41 @@ async function getOpenAIResponseConverstation(newMessage, username){
 
 async function getScheduleFromOpenAI(tasks, currentSchedule) {
 
-    console.log("Tasks: ");
-    console.log(tasks);
-    console.log(currentSchedule);
-    const message = [{
-        "role": "system",
-        "content": "You will be provided with a freeform text that describes tasks that a person needs to get done during the week.   You will also be provided with their current schedule.  Your task will be to provide an updated schedule by merging all the exising events with the new events that you generate based on the users tasks that they need to get done.  Do not change the times for existing events."
-    },
+    //console.log("Tasks: ");
+    //console.log(tasks);
+    //console.log(currentSchedule);
+
+    //const prompt = "Given the freeform text of tasks and the existing events in JSON format, extract, merge, and sort all the tasks and events into a single, valid JSON array. The freeform tasks should be transformed into structured data based on the mentioned dates and times. The returned JSON string should not contain any duplicates or extraneous content::\n\n" 
+     //   + "Freeform text:" + tasks + "\n\n" + "Existing events:" + JSON.stringify(currentSchedule);
+
+    const prompt = "Given the freeform text create a calendar schedule for the week that does not conflict"
+        + " with any of the given timeslots.   Provide this schedule as a valid JSON object with the following format for each event: [eventTitle, startDate, endDate]. Do not provide any additonal explanations or notes.  Only return the valid JSON object.\n\n" 
+        + "Freeform text:" + tasks + "\n\n" + "Timeslots:" + JSON.stringify(currentSchedule);
+    
+    const message = [
     {
         "role": "user",
-        "content": "Tasks:\n" + tasks + "\n\nCurrent Schedule:\n" + JSON.stringify(currentSchedule)
+        //"content": "Tasks:\n" + tasks + "\n\nCurrent Schedule:\n" + JSON.stringify(currentSchedule)
+        "content": prompt
     }];
 
-    
-    return await openai.chat.completions.create({
+//    console.log("Sending: " + "Tasks:\n" + tasks + "\n\nCurrent Schedule:\n" + JSON.stringify(currentSchedule));
+console.log(prompt);
+    const response = await openai.chat.completions.create({
         model: "gpt-3.5-turbo-16k",
         messages: message,
         temperature: 1,
-        max_tokens: 256,
+        //max_tokens: 256,
+        max_tokens: 2100,
         top_p: 1,
         frequency_penalty: 0,
         presence_penalty: 0,
     });
+
+    console.log("GPT Response: " + response.choices[0].message.content);
+    console.log("End respone");
+
+    return response.choices[0].message.content;
 }
 
 async function getOpenAIResponse(formattedString, username) {

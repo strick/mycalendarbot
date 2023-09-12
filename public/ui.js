@@ -30,16 +30,63 @@ document.getElementById('generateSchedule').addEventListener('click', async func
             throw new Error('Network response was not ok');
         }
 
-        const generatedSchedule = await response.json();
+        const raw = await response.json();
+        const generatedSchedule = JSON.parse(raw.data);
 
-        // Display the generated schedule on the page. This is just an example, you might want to format and render it differently.
         const scheduleDisplay = document.getElementById('scheduleDisplay');
-        scheduleDisplay.innerHTML = '';
-        generatedSchedule.forEach(event => {
-            const eventDiv = document.createElement('div');
-            eventDiv.textContent = `${event.start} - ${event.end}: ${event.subject}`;
-            scheduleDisplay.appendChild(eventDiv);
-        });
+scheduleDisplay.innerHTML = '';
+
+// Create the outer scrollable div
+const scrollableDiv = document.createElement('div');
+scrollableDiv.className = 'scrollable-events mb-3 bg-light rounded p-3';
+scrollableDiv.style.height = '600px';
+scrollableDiv.style.overflowY = 'auto';
+
+// Create the table and its head
+const table = document.createElement('table');
+table.className = 'table table-striped mb-0';
+
+const thead = document.createElement('thead');
+const trHead = document.createElement('tr');
+['Subject', 'Start Date', 'End Date'].forEach(headerText => {
+    const th = document.createElement('th');
+    th.textContent = headerText;
+    trHead.appendChild(th);
+});
+thead.appendChild(trHead);
+
+// Create the table body
+const tbody = document.createElement('tbody');
+generatedSchedule.forEach(event => {
+    const tr = document.createElement('tr');
+
+    const tdSubject = document.createElement('td');
+    tdSubject.textContent = event[0];//event.subject || event.title || event.name;  // Depending on which field you use
+    tr.appendChild(tdSubject);
+
+    const tdStart = document.createElement('td');
+    //tdStart.textContent = event.start.split('.')[0];
+    tdStart.textContent = event[1];
+    tr.appendChild(tdStart);
+
+    const tdEnd = document.createElement('td');
+    tdEnd.textContent = event[2];
+    tr.appendChild(tdEnd);
+
+    tbody.appendChild(tr);
+});
+
+table.appendChild(thead);
+table.appendChild(tbody);
+
+scrollableDiv.appendChild(table);
+
+let header = scheduleDisplay.appendChild(document.createElement('h3'));
+header.innerText = "New Generated Schedule"
+
+scheduleDisplay.appendChild(header);
+scheduleDisplay.appendChild(scrollableDiv);
+
 
         document.getElementById('downloadICS').style.display = 'block'; // Show the download button after generating the schedule.
     } catch (error) {
