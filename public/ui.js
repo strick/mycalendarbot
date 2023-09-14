@@ -13,6 +13,25 @@ async function displayUI() {
     content.style = "display: block";
 }
 
+function formatDate(isoString) {
+    const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+    const date = new Date(isoString);
+    
+    const dayOfWeek = days[date.getDay()];
+    const month = date.getMonth() + 1;  // JavaScript month is 0-indexed
+    const day = date.getDate();
+    const hours = date.getHours();
+    const minutes = date.getMinutes();
+
+    const amOrPm = hours < 12 ? 'AM' : 'PM';
+
+    // Convert to 12-hour format
+    const formattedHours = hours % 12 || 12;
+
+    return `${dayOfWeek}, ${month.toString().padStart(2, '0')}/${day.toString().padStart(2, '0')} ${formattedHours}:${minutes.toString().padStart(2, '0')} ${amOrPm}`;
+}
+  
+
 document.getElementById('generateSchedule').addEventListener('click', async function() {
     const tasks = document.getElementById('tasksInput').value.split('\n'); // Split by line to get individual tasks.
     
@@ -31,7 +50,9 @@ document.getElementById('generateSchedule').addEventListener('click', async func
         }
 
         const raw = await response.json();
-        const generatedSchedule = JSON.parse(raw.data);
+        const generatedSchedule = raw.data;
+
+    
 
         const scheduleDisplay = document.getElementById('scheduleDisplay');
 scheduleDisplay.innerHTML = '';
@@ -61,16 +82,16 @@ generatedSchedule.forEach(event => {
     const tr = document.createElement('tr');
 
     const tdSubject = document.createElement('td');
-    tdSubject.textContent = event[0];//event.subject || event.title || event.name;  // Depending on which field you use
+    tdSubject.textContent = event.title; //event.subject || event.title || event.name;  // Depending on which field you use
     tr.appendChild(tdSubject);
 
     const tdStart = document.createElement('td');
     //tdStart.textContent = event.start.split('.')[0];
-    tdStart.textContent = event[1];
+    tdStart.textContent = formatDate(event.startDate)
     tr.appendChild(tdStart);
 
     const tdEnd = document.createElement('td');
-    tdEnd.textContent = event[2];
+    tdEnd.textContent = formatDate(event.endDate);
     tr.appendChild(tdEnd);
 
     tbody.appendChild(tr);

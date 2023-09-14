@@ -72,10 +72,12 @@ async function getScheduleFromOpenAI(tasks, currentSchedule) {
     //const prompt = "Given the freeform text of tasks and the existing events in JSON format, extract, merge, and sort all the tasks and events into a single, valid JSON array. The freeform tasks should be transformed into structured data based on the mentioned dates and times. The returned JSON string should not contain any duplicates or extraneous content::\n\n" 
      //   + "Freeform text:" + tasks + "\n\n" + "Existing events:" + JSON.stringify(currentSchedule);
 
-    const prompt = "Given the freeform text create a calendar schedule for the week that does not conflict"
+    /*const prompt = "Given the freeform text create a calendar schedule for the week that does not conflict"
         + " with any of the given timeslots.   Provide this schedule as a valid JSON object with the following format for each event: [eventTitle, startDate, endDate]. Do not provide any additonal explanations or notes.  Only return the valid JSON object.\n\n" 
         + "Freeform text:" + tasks + "\n\n" + "Timeslots:" + JSON.stringify(currentSchedule);
-    
+    */
+   const prompt = process.env.BIO + " " + "Please generate a schedule based on my curerent commitments and the supplied freeform text for the week that does not conflict with any of the given timeslots.   Provide this schedule as a valid JSON object with the following format for each event: [eventTitle, startDate, endDate]. Do not provide any additonal explanations or notes.  Only return the valid JSON object."
+     + "\n\n Freeform text:" + tasks + "\n\n" + "Timeslots:" + JSON.stringify(currentSchedule);
     const message = [
     {
         "role": "user",
@@ -89,8 +91,6 @@ console.log(prompt);
         model: "gpt-3.5-turbo-16k",
         messages: message,
         temperature: 1,
-        //max_tokens: 256,
-        max_tokens: 2100,
         top_p: 1,
         frequency_penalty: 0,
         presence_penalty: 0,

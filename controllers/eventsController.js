@@ -21,6 +21,9 @@ exports.generateSchedule = async (req, res) => {
      try {
          // Fetch all events for the specified account and date range
         const allEvents = await fetchAllEvents(client, accountId, startDateTime, endDateTime, 'organizer,subject,start,end');
+        const copyofAllEvents = [...allEvents];
+
+        console.log(allEvents);
 
 
         function transformToArray(events) {
@@ -32,13 +35,41 @@ exports.generateSchedule = async (req, res) => {
         
         const result = transformToArray(allEvents);
 
-        const mergedEvents = await generateWeeklySchedule(tasks, result);
+        const rawNewEvents = await generateWeeklySchedule(tasks, result);
+        const newEvents = JSON.parse(rawNewEvents);
+
+
+        const formattedAllEvents = copyofAllEvents.map(event => [event.subject, event.start.dateTime, event.end.dateTime]);
+        const mergedEvents = [...formattedAllEvents, ...newEvents];
+
+        console.log(mergedEvents);
+
+
+        mergedEvents.sort((a, b) => {
+            const dateA = new Date(a[1]);
+            const dateB = new Date(b[1]);
         
+            if (dateA < dateB) return -1;
+            if (dateA > dateB) return 1;
+            return 0;
+        });
+        
+
+        const obj = mergedEvents.map(item => ({
+            title: item[0],
+            startDate: item[1],
+            endDate: item[2]
+        }));
+
+        console.log(obj);
+
         // Send a success response
         res.status(200).json({
             success: true,
-            data: mergedEvents
+            data: obj
         });
+
+        
 
      } catch (error) {
          // Handle any Microsoft Graph specific errors
